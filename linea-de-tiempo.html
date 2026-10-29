@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recorrido de Educación a Distancia 2009-2027</title>
+<style>
+:root{--v:#72076F;--m:#92278F;--p:#E85D9E;--y:#FFC107;--t:#17A2B8;--g:#2FB380;--d:#2A0F29}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Calibri,Arial,sans-serif;color:#2B2530;background:linear-gradient(180deg,#E8F6F9 0%,#FFF8E6 55%,#FBE9F3 100%);min-height:100vh}
+header{padding:28px 5vw 6px;display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between}
+h1{margin:0;font-size:clamp(30px,4.6vw,62px);line-height:1;letter-spacing:-.02em;color:var(--d);font-weight:900}
+h1 em{font-family:Georgia,serif;font-weight:400;color:var(--m)}
+.sub{margin:6px 0 0;color:#6E6672;font-size:clamp(14px,1.4vw,18px)}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{border:2px solid var(--c);background:#fff;color:#2B2530;border-radius:30px;padding:6px 14px;font-weight:700;font-size:13px;cursor:pointer}
+.chip.on{background:var(--c);color:#fff}
+.chip.lt.on{color:#3A2A00}
+.play{border:0;border-radius:30px;padding:9px 20px;background:var(--v);color:#fff;font-weight:800;cursor:pointer}
+.map{position:relative;max-width:1280px;margin:10px auto 0;padding:0 3vw}
+.map svg{width:100%;height:auto;display:block}
+.pin{cursor:pointer}
+.pin .halo{transition:r .25s,opacity .25s;opacity:0}
+.pin:hover .halo,.pin.on .halo{opacity:.35}
+.pin text.y{font-weight:900;font-size:22px;text-anchor:middle;fill:#2A0F29}
+.pin.dim{opacity:.22}
+#tip{position:absolute;pointer-events:none;background:#2A0F29;color:#fff;border-radius:16px;padding:12px 16px;max-width:300px;font-size:13.5px;line-height:1.4;box-shadow:0 14px 30px rgba(40,10,40,.35);opacity:0;transition:opacity .15s;z-index:5}
+#tip b{display:block;font-size:15px;color:var(--y);margin-bottom:3px}
+#bus{transition:none}
+.panel{max-width:1180px;margin:8px auto 40px;padding:0 5vw}
+.card{display:grid;grid-template-columns:auto 1fr;gap:30px;align-items:center;background:#fff;border-radius:30px;padding:24px 34px;box-shadow:0 18px 44px rgba(80,20,80,.16);border-left:14px solid var(--c)}
+.card .yr{font-size:clamp(56px,9vw,130px);font-weight:900;line-height:.85;color:var(--c);letter-spacing:-.04em}
+.card h2{margin:0 0 6px;font-size:clamp(22px,2.6vw,36px);color:var(--d)}
+.card p{margin:0;font-size:clamp(15px,1.4vw,19px);line-height:1.5}
+.tag{display:inline-block;border-radius:20px;background:var(--c);color:#fff;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:3px 12px;margin-bottom:8px}
+.tag.lt{color:#3A2A00}
+.nav{display:flex;gap:10px;margin-top:14px}
+.nav button{border:2px solid var(--m);background:#fff;color:var(--m);border-radius:30px;padding:7px 18px;font-weight:800;cursor:pointer}
+.nav button:hover{background:var(--m);color:#fff}
+@media(max-width:760px){.card{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>Recorrido de <em>Educación a Distancia</em></h1><p class="sub">Las estaciones del camino entre 2009 y las metas 2027. Pasá el mouse por cada estación o tocala para leer qué ocurrió.</p></div>
+  <div class="ctrl" id="ctrl"></div>
+</header>
+<div class="map" id="map"><div id="tip"></div></div>
+<div class="panel" id="panel"></div>
+<script>
+/* Datos de las piezas sobre las acciones de Educación a Distancia (SEAD, UMaza).
+   Es el único archivo con textos y cifras; se edita con el Bloc de notas. */
+window.ACC = {
+  /* ------------ qué hizo EaD: ocho frentes ------------ */
+  frentes: [
+    { id: 'aulas', t: 'Acompañamiento pedagógico de aulas', icono: 'laptop', color: '#92278F',
+      n: [['30', 'planillas FOR 0395 aplicadas aula por aula'], ['47', 'aulas intervenidas en 2025-2026'], ['97', 'aulas relevadas en 2025']],
+      txt: 'Revisó aulas con la planilla de acompañamiento en CCC Salud, CCC RRHH, CCC Podología, Informática, Educación Inicial, Maestría en Educación Superior, Puericultura y Abogacía; se reunió con docentes y directores, cargó material cuando hizo falta y revisó cada aula después de su armado.',
+      analisis: 'Es el frente más sostenido y el que más datos propios produjo. El desafío es pasar de la revisión aula por aula a un seguimiento periódico por carrera.' },
+    { id: 'plantilla', t: 'Plantilla y Ruta de Aprendizaje', icono: 'book', color: '#2FB380',
+      n: [['31', 'etiquetas gráficas para ordenar el aula'], ['39', 'aulas controladas módulo por módulo'], ['12', 'aulas con la plantilla completa']],
+      txt: 'Convirtió los hallazgos de 2024 en un modelo común: plantilla de aula (febrero de 2025), etiquetas modulares, curso de inducción y un control de aulas acomodadas en RRHH e Inglés.',
+      analisis: 'El modelo existe y está bien documentado. Su adopción es todavía parcial: 12 de 97 aulas lo aplican completo, por lo que el trabajo siguiente es de acompañamiento y verificación.' },
+    { id: 'cap', t: 'Capacitación docente', icono: 'users', color: '#E85D9E',
+      n: [['269', 'participaciones registradas'], ['227', 'docentes distintos (aprox.)'], ['7', 'propuestas formativas 2023-2026']],
+      txt: 'Moodle autogestionado (85), Primeros pasos en IA (59), Herramientas digitales con la AEU (47), IA en acción (39), Edubit (25), Del aula presencial al mundo virtual (7) y Recursos libres para enseñar inglés (7).',
+      analisis: 'Hay una oferta amplia y variada, con buena respuesta en Moodle e IA. Falta un registro de asistencia final y certificación que permita medir el impacto en las aulas.' },
+    { id: 'conc', t: 'Concursos docentes', icono: 'crown', color: '#FFC107',
+      n: [['7', 'concursantes de Puericultura observados en 2024'], ['2', 'aulas de postulantes evaluadas en 2025'], ['2', 'formularios actualizados con la AEU (FOR 0024 y 0028)']],
+      txt: 'Evaluó las aulas virtuales de los postulantes con la grilla del concurso, emitió informes y actualizó con la AEU el currículum y la grilla de antecedentes (versiones finales de noviembre de 2025).',
+      analisis: 'El SEAD ya participa de la selección docente. La mejora pendiente es sumar criterios explícitos de competencias digitales y mediación pedagógica.' },
+    { id: 'cesion', t: 'Cesión de derechos de autor', icono: 'shield', color: '#17A2B8',
+      n: [['40', 'indicadores en la grilla de calidad'], ['120', 'puntos de umbral sobre 160'], ['5 de 7', 'aulas de CCC Salud revisadas']],
+      txt: 'Creó la grilla de calidad de materiales y comenzó el monitoreo en CCC Salud: cinco aulas fueron revisadas por el SEAD y dos quedaron para ajustar.',
+      analisis: 'Es una pieza nueva y bien armada. Falta validarla y cerrar la propuesta económica con Recursos Humanos y Sueldos.' },
+    { id: 'sied', t: 'Ratificación del SIED ante la CONEAU', icono: 'school', color: '#72076F',
+      n: [['73 %', 'de los ítems del informe finalizados (33 de 45)'], ['19', 'normas registradas'], ['3', 'reuniones con la consultoría de la UNCuyo']],
+      txt: 'Armó las fichas del sistema de la CONEAU, ordenó la normativa, respondió al informe de validación de 2019 y preparó las respuestas para la visita de pares.',
+      analisis: 'Es el frente con mayor avance. Quedan en curso los ítems de tecnologías previstas y de normativa institucional.' },
+    { id: 'norma', t: 'Normativa y procedimientos', icono: 'door', color: '#B04BC0',
+      n: [['6', 'PRO, FOR y DOR trabajados con la Dirección Académica'], ['2', 'resoluciones del SEAD en 2026'], ['1', 'reglamento de EaD en revisión']],
+      txt: 'Con la Dirección Académica actualizó PRO 444, PRO 0456, DOR 0135, FOR 180 y el anexo de EaD; el reglamento y la estructura orgánica del SEAD se aprobaron en marzo de 2026.',
+      analisis: 'Se consolidó el marco normativo. Siguen abiertas la función tutorial y la evaluación por competencias en la modalidad. El PRO 0440 de registro digital de unidad curricular (revisión 4, 16-03-2026) incluye al SEAD y al Tutor Virtual en su alcance y remite a la Res. 63/25 de cesión de derechos y a la RR 1014/24 de evaluación; en la copia compartida tiene observaciones abiertas.' },
+    { id: 'recursos', t: 'Tutoriales, guías y recursos', icono: 'gear', color: '#5C6BC0',
+      n: [['26', 'videos entre tutoriales y grabaciones'], ['3', 'guías 2026 (docentes, estudiantes y posgrado)'], ['15', 'recursos previstos en el recursero']],
+      txt: 'Grabó tutoriales de Moodle, escribió las guías 2026 y una guía para completar aulas de posgrado. El recursero dentro de la plataforma sigue en proceso.',
+      analisis: 'Hay material valioso listo para publicar. El paso que falta es reunirlo en un único espacio de la plataforma y comunicarlo a los docentes.' }
+  ],
+
+  /* ------------ línea de tiempo ------------ */
+  linea: [
+    { a: 2009, t: 'Nace Educación a Distancia', d: 'La Resolución Rectoral 550/2009 crea el área.', k: 'hito' },
+    { a: 2019, t: 'La CONEAU valida el SIED', d: 'El Sistema Institucional de Educación a Distancia obtiene su primera validación nacional (RM 168/2019).', k: 'hito' },
+    { a: 2020, t: 'Pandemia y marco normativo', d: 'Protocolo de exámenes virtuales (RR 91), extensión virtual (RR 353), estructura del área (RR 674) y reglamento de complementos, asignaturas y carreras virtuales (RR 675).', k: 'norma' },
+    { a: 2021, t: 'Normas de convivencia del aula', d: 'La Res. 676/2021 fija las normas de uso del aula virtual y la Res. 787/21 protege los derechos intelectuales y rechaza el plagio.', k: 'norma' },
+    { a: 2022, t: 'Participación docente', d: 'Las Res. 558/22 y 790/22 piden una intervención docente de al menos 60 % en las clases sincrónicas.', k: 'norma' },
+    { a: 2023, t: 'Organigrama y nueva norma nacional', d: 'La Res. 892/2023 aprueba el organigrama del SEAD. El Ministerio emite la RM 2599/2023, que exige revalidar el SIED.', k: 'norma' },
+    { a: 2024, t: 'Diagnóstico y diseño de la Ruta de Aprendizaje', d: 'Informe de aulas de CCC Salud (feb); etiquetas modulares (mar); revisión de Abogacía (may); informe de concursos de Puericultura (ago); informe anual de la Coordinación (dic). La Res. 2/2024 promueve las herramientas digitales.', k: 'trabajo' },
+    { a: 2025, t: 'Plantilla institucional, Edubit y revalidación', d: 'Plantilla común y curso de inducción (feb); Edubit (abr a jun); comisión de ratificación del SIED (12 may); Moodle 4.5.4; relevamiento de 97 aulas; consultoría de la UNCuyo (oct); versiones finales de los concursos docentes (nov); respuesta al informe de 2019 (dic). Res. 61 y 63/2025.', k: 'trabajo' },
+    { a: 2026, t: 'Reglamento del SEAD y planes de mejora', d: 'Reglamento y estructura orgánica del SEAD (mar); guías 2026 para docentes y estudiantes; informes técnicos por facultad entregados a los decanatos (abr); planes de mejora I y II (may); preparación de la visita de pares (jun); grilla de cesión de derechos y su monitoreo (ago); seguimiento de las 58 tareas (14 sep).', k: 'trabajo' },
+    { a: 2027, t: 'Metas de los planes de mejora', d: 'Relevar competencias digitales docentes, definir bloques mínimos de aula y rediseñar los mecanismos de evaluación del SIED. Cierra la primera etapa del plan de trabajo (31 de marzo).', k: 'meta' }
+  ],
+
+  /* ------------ vínculos: con quiénes habló y de qué ------------ */
+  actores: [
+    { id: 'vac', n: 'Vicerrectorado Académico', g: 'interno', f: 'alta', ev: 'Plan de mejora I; actas de la comisión; plan de trabajo',
+      temas: ['Definió los ocho ejes prioritarios de esta etapa', 'Valida el reglamento del SIED y los planes de mejora', 'Aprobación formal del plan de capacitación junto con SEAD y AEU'] },
+    { id: 'aeu', n: 'Asesoría Educativa (AEU)', g: 'interno', f: 'alta', ev: 'Actualización de FOR 0024 y 0028; plan de capacitación 2026',
+      temas: ['Plan de capacitación 2026 y jornadas IA-Tones', 'Curso de herramientas digitales (47 participantes)', 'Concursos docentes: currículum, grilla y perfil de primer año', 'Informe del PIU y análisis de experiencias híbridas'] },
+    { id: 'dac', n: 'Dirección Académica (DAC)', g: 'interno', f: 'alta', ev: 'Procedimientos PRO 444 y 0456; memoria 2025-2026',
+      temas: ['PRO de presentación de carreras a distancia y anexo de EaD', 'PRO de implementación de programas (0456) y DOR 0135 de mesas', 'Figura del tutor virtual y cesión de derechos', 'Registro de unidad curricular digital'] },
+    { id: 'dec', n: 'Decanatos y direcciones de carrera', g: 'interno', f: 'alta', ev: 'Guía de relevamiento 2025; informes técnicos de abril de 2026',
+      temas: ['Relevamiento 2025 con 11 direcciones de carrera', 'Entrega de los informes técnicos a los decanatos de las facultades relevadas en 2025', 'Pedidos puntuales: taller de inglés, recurso Moodle para RRHH, migración de modalidad', 'Reunión con la dirección de Educación Inicial (2024)'] },
+    { id: 'doc', n: 'Docentes y coordinadores', g: 'interno', f: 'alta', ev: 'Informe 2024; planillas FOR 0395; capacitaciones',
+      temas: ['Reuniones sincrónicas con docentes de la Maestría', 'Coordinadores de Informática, Inglés y Metodología', 'Acompañamiento a concursantes de Puericultura', 'Soporte de carga de material y tutoriales'] },
+    { id: 'sis', n: 'Sistemas y plataforma', g: 'interno', f: 'media', ev: 'Plan de mejora I; fichas de tecnologías',
+      temas: ['Moodle 4.5.4 con 48 GB de RAM y discos SSD', 'Rediseño de la plataforma y espacio de recursos en el Home', 'Componentes HTML responsivos en las aulas', 'Integración con el sistema de gestión académica'] },
+    { id: 'rrhh', n: 'Recursos Humanos, Sueldos y Finanzas', g: 'interno', f: 'media', ev: 'Plan de mejora I; actas de la comisión',
+      temas: ['Propuesta económica de la cesión de derechos de autor', 'Contrato de cesión ya redactado', 'Reunión conjunta con VAC prevista para reglamentar la cesión'] },
+    { id: 'bib', n: 'Biblioteca', g: 'interno', f: 'baja', ev: 'Acta de la comisión del 12/5/2025',
+      temas: ['Acceso a biblioteca virtual y repositorios digitales', 'Alfabetización informacional e inteligencia artificial', 'La reunión se acordó; no se encontró registro de que se haya realizado'] },
+    { id: 'vie', n: 'Investigación y Extensión', g: 'interno', f: 'baja', ev: 'Acta de la comisión; actividades de extensión',
+      temas: ['Estado de la investigación y la extensión en EaD', 'Dos cursos de extensión de IA ya dictados (2024 y 2025)', 'La reunión se pidió; no se encontró registro de que se haya realizado'] },
+    { id: 'sgr', n: 'Secretaría General y Calidad', g: 'interno', f: 'media', ev: 'Actas de la comisión; registro de normas',
+      temas: ['Revisión del reglamento y las normas antes de su aprobación', 'Procedimientos y formularios bajo la certificación ISO 9001', 'Archivo de resoluciones'] },
+    { id: 'con', n: 'CONEAU y Ministerio', g: 'externo', f: 'alta', ev: 'Fichas del sistema SIEMI; informe de ratificación',
+      temas: ['Revalidación del SIED según la RM 2599/2023', 'Fichas del sistema SIEMI y planes de mejora', 'Preparación de la visita de pares y respuesta al informe de 2019'] },
+    { id: 'unc', n: 'Consultoría UNCuyo', g: 'externo', f: 'alta', ev: 'Informe final de noviembre de 2025',
+      temas: ['Análisis del informe CONEAU de 2019 (reunión del 1/10/2025)', 'Revisión del borrador del reglamento: función tutorial y evaluación', 'Observaciones a las fichas del sistema SIEMI', 'Recomendaciones para la visita de pares'] },
+    { id: 'met', n: 'MetaRed TIC y UCASAL', g: 'externo', f: 'media', ev: 'Actas de la comisión; plan de mejora I',
+      temas: ['Convenios a mencionar en el formulario', 'Análisis de competencias digitales docentes (8/5/2026)', 'Criterios de MetaRed para la grilla de calidad de aulas'] },
+    { id: 'cap', n: 'Capacitadores externos', g: 'externo', f: 'media', ev: 'Actividades de extensión',
+      temas: ['Cursos de inteligencia artificial: Primeros pasos (2024) e IA en acción (2025)', 'Dictados por el Ing. Horacio Dumit'] }
+  ],
+  equipo: {
+    personas: [
+      { id: 'fabio', n: 'Dirección del SEAD', p: 'Lic. Fabio Escudero', rol: 'Estructura, vínculo con autoridades y decanatos, ratificación del SIED', total: 23, solo: 1, planilla: 5 },
+      { id: 'estefania', n: 'Coordinación didáctico-pedagógica', p: 'Prof. Estefanía Estrany', rol: 'Diseño instruccional, informes de aulas, capacitación, grillas e instrumentos', total: 50, solo: 22, planilla: 12 },
+      { id: 'ariel', n: 'Coordinación tecnológica', p: 'Lic. Ariel Capó', rol: 'Plataforma Moodle, recursero, tecnologías previstas', total: 7, solo: 0, planilla: 4 },
+      { id: 'milagros', n: 'Asistencia técnica', p: 'Milagros Plaza', rol: 'Normativa, antecedentes, convenios, procedimientos', total: 8, solo: 0, planilla: 5 }
+    ],
+    pares: [['fabio', 'estefania', 18], ['estefania', 'milagros', 8], ['fabio', 'milagros', 8], ['estefania', 'ariel', 6], ['fabio', 'ariel', 2]],
+    externos: [['Dirección Académica', 7], ['Asesoría Educativa', 2], ['Decanatos', 3], ['Vicerrectorado', 2]],
+    resumen: 'De las 58 tareas de los planes de mejora, 22 las lleva la Coordinación pedagógica sola y 3 figuran como tarea de todo el equipo; las otras 33 se comparten entre dos o más personas o áreas. La Dirección participa en 23, Asistencia Técnica en 8 y Tecnología en 7. En el informe del SIED la asignación es más amplia: 26 responsabilidades repartidas entre cuatro personas.'
+  },
+  seguimientos: [
+    ['Planillas FOR 0395 por aula', '30 individuales, más las de Informática, concursos y Ética', 'Instrumento de acompañamiento pedagógico'],
+    ['Relevamiento de aulas 2025', '97 aulas de 9 carreras, unas 60 variables', 'Es la base de datos más completa'],
+    ['Informes por facultad y por carrera', '5 informes técnicos y 9 síntesis, entregados en abril de 2026 (relevamiento 2025); el reporte del campus 2026 cubre las 7 facultades', 'Todos cualitativos'],
+    ['Seguimiento de la plantilla', 'Unas 39 aulas controladas módulo por módulo', 'RRHH e Inglés'],
+    ['Observación de exámenes virtuales', 'Informática, febrero de 2026', 'Revisó consignas, banco de preguntas y sincrónico'],
+    ['Monitoreo de cesión de derechos', '7 aulas de CCC Salud', '5 revisadas y 2 para ajustar'],
+    ['Seguimiento del informe del SIED', '45 ítems con responsable, plazo y avance', '33 finalizados'],
+    ['Seguimiento de los planes de mejora', '58 tareas, corte del 14 de septiembre de 2026', '26 sin estado cargado'],
+    ['Registro de capacitaciones', '269 participaciones nominales', 'Sin registro de certificación final'],
+    ['Encuestas', 'Satisfacción de Edubit y de inglés; necesidades de capacitación; satisfacción del SEAD', 'Meta de 30 respuestas del SEAD']
+  ],
+
+  /* ------------ relevamiento 2025 ------------ */
+  rel: {
+    n: 97,
+    lentes: [
+      { id: 'uso', t: 'Nivel de uso de Moodle', cats: [['Básico', 69, '#E91E63'], ['Intermedio', 24, '#FFB300'], ['Avanzado', 4, '#00ACC1']], nota: 'Básico: repositorio de archivos y entrega simple de tareas.' },
+      { id: 'plantilla', t: 'Plantilla institucional', cats: [['No la usa', 54, '#E91E63'], ['Con partes ocultas', 20, '#FF7043'], ['Solo algunas partes', 11, '#FFB300'], ['Completa', 12, '#00ACC1']], nota: 'Plantilla común de aula de la universidad.' },
+      { id: 'ruta', t: 'Ruta de Aprendizaje', cats: [['No la aplica', 51, '#E91E63'], ['Parcialmente', 42, '#FFB300'], ['La aplica', 4, '#00ACC1']], nota: 'Recorrido de inicio, desarrollo y cierre en cada unidad.' },
+      { id: 'foro', t: 'Foro de avisos', cats: [['Nunca se usa', 58, '#E91E63'], ['Algunas veces', 13, '#FFB300'], ['Con frecuencia', 5, '#26A69A'], ['Siempre', 16, '#00ACC1']], nota: 'Sobre 92 aulas con dato.' },
+      { id: 'eval', t: 'Feedback de la evaluación', cats: [['Automático', 61, '#E91E63'], ['Nota manual', 18, '#FFB300'], ['Cualitativo', 9, '#26A69A'], ['Formativo', 10, '#00ACC1'], ['Ninguno', 6, '#9E9E9E']], nota: 'Sobre 104 respuestas registradas de 84 aulas con evaluación.' },
+      { id: 'libros', t: 'Bibliografía y propiedad intelectual', cats: [['Libros completos sin licencia', 34, '#E91E63'], ['Citada y sin infracción', 25, '#FFB300'], ['Fuentes institucionales o abiertas', 24, '#00ACC1']], nota: 'Sobre 83 aulas con dato; Res. 63/25.' }
+    ],
+    fortalezas: [['Contenidos que coinciden con el programa', 76], ['Navegación fácil o aceptable', 97], ['Sincrónicos realizados', 97], ['Sincrónicos con grabación cargada', 87], ['Respuesta a consultas en 48 horas', 80], ['Bibliografía de los últimos 10 años', 66]],
+    problemas: [['Evaluación sin criterios explícitos', 70], ['Feedback de evaluación automático', 73], ['Uso básico de Moodle', 71], ['Foro de avisos sin uso', 62], ['No usa la plantilla', 56], ['No aplica la Ruta', 53], ['No recupera conocimientos previos', 47], ['Libros completos sin licencia', 35], ['Usa herramientas externas', 21]],
+    positivos: [
+      '76 de cada 100 aulas tienen contenidos que coinciden con el programa.',
+      'El 97 % de las aulas se navega con facilidad o de forma aceptable.',
+      'Se realizan encuentros sincrónicos en 92 de las 95 aulas con dato, y 81 de 93 cargan la grabación.',
+      'El 66 % de las aulas tiene bibliografía de los últimos 10 años y en 8 de cada 10 los materiales son de autoría total o mayoritaria del docente.',
+      'Las respuestas a consultas llegan en 48 horas en 36 de 45 aulas y la claridad y cercanía del mensaje es alta (37 de 40).'
+    ]
+  },
+  carreras: {
+    ejes: ['Uso básico', 'Sin plantilla', 'Sin Ruta', 'Foro sin uso', 'Libros sin licencia', 'Eval. sin criterios'],
+    filas: [
+      { n: 'CCC Salud', aulas: 8, v: [75, 25, 50, 0, 13, 38], fb: 100 },
+      { n: 'Prof. para Profesionales', aulas: 12, v: [25, 67, 0, 17, 0, 25], fb: 42 },
+      { n: 'CCC Podología', aulas: 10, v: [80, 10, 20, 70, 40, 30], fb: 90 },
+      { n: 'CCC Bioimágenes', aulas: 8, v: [100, 25, 75, 50, 13, 75], fb: 100 },
+      { n: 'Tec. en Puericultura', aulas: 24, v: [71, 54, 50, 67, 75, 71], fb: 85 },
+      { n: 'Lic. Educación Física', aulas: 11, v: [45, 100, 45, 64, 0, 82], fb: 70 },
+      { n: 'CCC Lic. en RRHH', aulas: 8, v: [75, 13, 75, 88, 63, 88], fb: 71 },
+      { n: 'CCC Lic. en Gastronomía', aulas: 11, v: [100, 100, 100, 100, 18, 91], fb: 20 },
+      { n: 'Lic. en Matemática', aulas: 5, v: [100, 100, 100, 80, 60, 20], fb: 100 }
+    ],
+    nota: 'Cada eje del gráfico es el porcentaje de aulas de la carrera con ese problema: cuanto más grande la figura, más atención requiere.'
+  },
+  hallazgosFac: [
+    { f: 'Educación', carreras: 'Lic. Educación Física, Lic. Matemática, Prof. para Profesionales', c: '#FFB300',
+      fortaleza: 'Compromiso y cercanía docente; el Profesorado para Profesionales es el mejor perfil del relevamiento: diseño propio, consignas completas y herramientas externas.',
+      critico: 'Falta de unificación bajo la Ruta de Aprendizaje; Matemática sin hojas de ruta y con materias sin evaluación definida; Educación Física sin plantilla en 11 de 11 aulas.' },
+    { f: 'Ciencias Sociales y Comunicación', carreras: 'CCC Lic. en Recursos Humanos', c: '#8E24AA',
+      fortaleza: 'Rigor de la bibliografía, análisis de casos y calidez docente.',
+      critico: 'Plantilla con componentes ocultos, sin planificaciones ni datos del equipo docente visibles, y libros completos subidos sin licencia en 5 de 8 aulas.' },
+    { f: 'Farmacia y Bioquímica', carreras: 'CCC Salud (materias comunes)', c: '#00ACC1',
+      fortaleza: 'Nivel consolidado: materiales propios en el 100 % de las aulas, narrativa docente, foros activos y sincrónicos grabados.',
+      critico: 'Evaluación y feedback automáticos, consignas poco claras y uso parcial de la plantilla.' },
+    { f: 'Kinesiología y Fisioterapia', carreras: 'CCC Bioimágenes, CCC Podología', c: '#E91E63',
+      fortaleza: 'Navegabilidad adecuada y primeras experiencias con herramientas externas e inteligencia artificial.',
+      critico: 'Bioimágenes oculta partes del diseño en la mayoría de las aulas y casi no usa foros; Podología evalúa casi solo con cuestionarios.' },
+    { f: 'Nutrición', carreras: 'CCC Lic. en Gastronomía, Tec. en Puericultura', c: '#43A047',
+      fortaleza: 'Excelente estándar de citación y feedback cualitativo personalizado en Puericultura.',
+      critico: 'Las 11 aulas de Gastronomía son de uso básico, sin plantilla, Ruta ni foro de avisos; en Puericultura 18 de 24 aulas cargan libros completos escaneados.' },
+    { f: 'Veterinaria', carreras: 'Veterinaria (grado)', c: '#FF7043', sinRel: true,
+      nota: 'Sin relevamiento 2025 de aulas. Los datos son del campus, ciclo 2026 (corte 7 y 8 de octubre de 2026). La planilla de ofertas 2026 no registra propuestas a distancia.',
+      kpi: [['44', 'aulas visibles'], ['89 %', 'con ingresos recientes'], ['3.345', 'inscripciones'], ['34', 'estudiantes por aula']],
+      cf: 'Todas las aulas con docente y ninguna aula grande con un solo docente. El 86 % tiene espacios de intercambio y el 82 % muestra cronograma o guía.', cc: 'El 48 % de las aulas mezcla escalas de calificación, la bibliografía se ve en el 45 % y casi no se usan talleres, glosarios ni wikis.',
+      fortaleza: 'Todas las aulas tienen docente asignado y ninguna aula grande depende de una sola persona. El 86 % tiene espacios de intercambio, el 82 % muestra cronograma o guía (el campus, 57 %) y el 55 % trabaja con grupos. Usa lecciones en el 14 % de las aulas, siete veces más que el conjunto del campus.',
+      critico: 'El 48 % de las aulas (21) mezcla calificaciones sobre 100 y sobre 10, lo que obliga a convertir las notas a mano al pasarlas a SIUJAM. La bibliografía se ve en menos de la mitad de las aulas (45 %), casi no se usan talleres, glosarios ni wikis y las rúbricas se mencionan en el 2 %. Dos aulas no tuvieron ingresos de estudiantes.',
+      semaforo: [
+        ['Aulas con estudiantes ingresando', '89 %', '91 %', 'Atención'], ['Aulas abiertas sin uso', '5 %', '3 %', 'En orden'], ['Aulas sin docente asignado', '0 %', '0 %', 'En orden'],
+        ['Aulas grandes con un solo docente', '0 %', '1,8 %', 'En orden'], ['Aulas con grupos o comisiones', '55 %', '51 %', 'En orden'], ['Aulas que mezclan escalas de calificación', '48 %', '44 %', 'Prioridad'],
+        ['Aulas con evaluación dentro del aula', '81 %', '87 %', 'En orden'], ['Aulas con bibliografía a la vista', '45 %', '37 %', 'Atención'], ['Aulas con cronograma o guía a la vista', '82 %', '57 %', 'En orden'],
+        ['Aulas que solo son repositorio', '2 %', '3 %', 'En orden'], ['Aulas con espacios de intercambio', '86 %', '86 %', 'En orden']],
+      acciones: ['Elegir una única escala de calificación y corregir el calificador de las 21 aulas que mezclan 100 y 10.', 'Sumar una hoja de ruta de una página con bibliografía visible en cada aula.', 'Incluir a Veterinaria en el relevamiento de aulas 2026 y ocultar o respaldar las dos aulas sin ingresos.'] },
+    { f: 'Ingeniería y Enología', carreras: 'Enología, Ingeniería en Agrimensura', c: '#5C6BC0', sinRel: true,
+      nota: 'Sin relevamiento 2025 de aulas. Los datos son del campus, ciclo 2026 (corte 7 y 8 de octubre de 2026). La planilla de ofertas 2026 no registra propuestas a distancia.',
+      kpi: [['78', 'aulas visibles'], ['90 %', 'con ingresos recientes'], ['1.839', 'inscripciones'], ['20', 'estudiantes por aula']],
+      cf: 'Todas las aulas con docente. El 90 % evalúa dentro del aula y solo el 3 % es un repositorio de archivos.', cc: 'La mitad usa una pestaña por tema, la bibliografía se ve en el 26 %, el cronograma en el 46 % y solo el 36 % trabaja con grupos.',
+      fortaleza: 'Todas las aulas tienen docente asignado y ninguna aula grande depende de una sola persona. El 90 % evalúa dentro del aula (el campus, 87 %), el 62 % usa cuestionarios y el 87 % incluye enlaces. Solo el 3 % de las aulas es un repositorio de archivos y la mezcla de escalas (33 %) es menor que la del campus (44 %).',
+      critico: 'La mitad de las aulas (39) usa una pestaña por tema, que muestra una unidad por vez. La bibliografía se ve en el 26 % de las aulas y el cronograma o la guía en el 46 %, y solo el 36 % trabaja con grupos. Hay 17 aulas de ciclos anteriores todavía visibles y 4 aulas de Agrimensura sin ingresos de estudiantes.',
+      semaforo: [
+        ['Aulas con estudiantes ingresando', '90 %', '91 %', 'En orden'], ['Aulas abiertas sin uso', '5 %', '3 %', 'En orden'], ['Aulas sin docente asignado', '0 %', '0 %', 'En orden'],
+        ['Aulas grandes con un solo docente', '0 %', '1,8 %', 'En orden'], ['Aulas con grupos o comisiones', '36 %', '51 %', 'Atención'], ['Aulas que mezclan escalas de calificación', '33 %', '44 %', 'Prioridad'],
+        ['Aulas con evaluación dentro del aula', '90 %', '87 %', 'En orden'], ['Aulas con bibliografía a la vista', '26 %', '37 %', 'Prioridad'], ['Aulas con cronograma o guía a la vista', '46 %', '57 %', 'Atención'],
+        ['Aulas que solo son repositorio', '3 %', '3 %', 'En orden'], ['Aulas con espacios de intercambio', '82 %', '86 %', 'En orden']],
+      acciones: ['Unificar el formato de las aulas con una plantilla común y una portada modelo, empezando por las 39 de una pestaña por tema.', 'Instalar una hoja de ruta de una página con bibliografía y cronograma visibles (hoy 26 % y 46 %).', 'Incluir a Ingeniería y Enología en el relevamiento 2026 y depurar las 17 aulas de ciclos anteriores y las 4 sin ingresos.'] }
+  ],
+
+  /* ------------ fortalezas y debilidades ------------ */
+  fortalezas: [
+    ['Sistema consolidado y reconocido', 'El SIED fue validado en 2019 y la consultoría de la UNCuyo lo describe como sólido y con alto grado de adopción institucional.'],
+    ['Plataforma estable', 'Moodle 4.5.4 con 48 GB de RAM, discos SSD, servidores redundantes y backup cada 24 horas.'],
+    ['Calidad certificada', 'Procedimientos y formularios avalados por la certificación IRAM-ISO 9001:2015.'],
+    ['Instrumentos propios de revisión', 'FOR 0395 y FOR 0035, grilla de calidad de materiales y relevamiento de 97 aulas con unas 60 variables.'],
+    ['Equipo que documenta y reparte', 'Planillas, informes, actas y planes con responsables y plazos; el trabajo se distribuye por áreas entre Dirección, pedagogía, tecnología y asistencia técnica.'],
+    ['Presencia docente cálida', 'Los informes por facultad destacan la cercanía y el acompañamiento de los docentes.'],
+    ['Oferta formativa en marcha', 'Siete propuestas de capacitación desde 2023, con unos 227 docentes distintos.'],
+    ['Aula modelo identificada', 'La unidad transversal de Ética cumple todos los criterios y puede usarse de referencia.']
+  ],
+  debilidades: [
+    { t: 'Evaluación dependiente de cuestionarios automáticos', g: 5, d: 'En 73 de cada 100 aulas el feedback de la evaluación es automático; 63 de 84 propuestas son cuestionarios simples; el 70 % no declara criterios. Los informes por facultad lo marcan como riesgo ante la inteligencia artificial.', l: 'L2, L3 y L6' },
+    { t: 'Plantilla y Ruta de Aprendizaje a medias', g: 5, d: 'El 56 % de las aulas no usa la plantilla y el 21 % la usa ocultando partes; solo 4 aulas aplican la Ruta. Cada docente decide su estructura y el estudiante debe reinterpretarla.', l: 'L2' },
+    { t: 'Datos propios e indicadores', g: 4, d: 'Los informes por facultad son cualitativos y no traen porcentajes; 26 de las 58 tareas de mejora no tienen estado cargado; el tablero de comando está en proceso. La consultoría de la UNCuyo lo marca como insuficiencia de informes y estadísticas.', l: 'L1 y L5' },
+    { t: 'Comunicación reactiva en las aulas', g: 4, d: 'El foro de avisos nunca se usa en el 62 % de las aulas; casi nadie recuerda los sincrónicos en el foro (69 de 93) ni deja aclaraciones para quienes no asisten (85 de 93).', l: 'L5' },
+    { t: 'Función tutorial sin reconocer', g: 4, d: 'Solo 2 de las 11 carreras de la guía de relevamiento tienen tutor nombrado; el reglamento todavía discute el rol, aunque el PRO 0440 (rev. 4) ya nombra al Tutor Virtual y al Tutor de orientación. La consultoría lo señala como debilidad.', l: 'L5' },
+    { t: 'Propiedad intelectual', g: 4, d: 'En 34 de 97 aulas el docente subió libros o capítulos completos sin licencia (18 de 24 en Puericultura). La grilla de cesión de derechos aún no está validada.', l: 'L2 y L6' },
+    { t: 'Competencias digitales sin medir', g: 4, d: 'La encuesta de competencias digitales docentes figura en proceso con plazo 2027; las capacitaciones del plan I están sin iniciar y no hay registro de certificación.', l: 'L1, L3 y L4' },
+    { t: 'Integridad académica y validación de identidad', g: 4, d: 'Hoy se apoya en normas de 2020 y 2021, pedir el DNI y usar Meet; ninguno de los planes de mejora incluye herramientas de detección de similitud o de IA.', l: 'L6' },
+    { t: 'Clave inicial por defecto en una guía para estudiantes', g: 4, d: 'La Guía para estudiantes 2026 indica que la contraseña inicial del portal UMaza Online es 12345 y recomienda cambiarla. Una clave conocida y publicada es un riesgo de seguridad frente al Comité de Ciberseguridad (Res. 555/24).', l: 'L6' },
+    { t: 'Los informes llegan, pero se leen en parte', g: 3, d: 'Los informes técnicos de las cinco facultades relevadas en 2025 se entregaron a los decanatos. Como a cualquier área, a las autoridades les llega mucho material y los documentos extensos suelen leerse en parte. Un resumen de una página por facultad y un encuentro breve ayudan a que los hallazgos se conviertan en acuerdos.', l: 'L1 y L5' },
+    { t: 'Algunas tareas dependen de una sola persona', g: 3, d: 'La Coordinación pedagógica lleva sola 22 de las 58 tareas de mejora; el resto se comparte con Dirección, Asistencia Técnica, Tecnología, AEU, DAC y decanatos. Sumar co-responsables en las tareas individuales da continuidad.', l: 'L5 y gobernanza' },
+    { t: 'Archivo documental difícil de consultar', g: 3, d: 'Resoluciones clave escaneadas, un reglamento todavía en borrador y algunos informes con restos de otras carreras (un informe de Educación Física dice Matemática).', l: 'L1' },
+    { t: 'Poca multimedia y recursos interactivos', g: 3, d: 'Solo 21 de 100 aulas usan herramientas externas; los informes piden diversificar formatos y dar voz docente a los materiales.', l: 'L2 y L3' }
+  ],
+
+  /* ------------ planes de mejora del SIED: 58 tareas + informe del SIED ------------ */
+  planes: {
+    total: 58,
+    estados: [['Finalizado', 10, '#00A86B'], ['En proceso', 16, '#FFB300'], ['No iniciado', 6, '#E91E63'], ['Sin estado cargado', 26, '#B0A6B5']],
+    areas: [
+      { id: 'A', n: 'Seguimiento y calidad de las aulas', c: '#8E24AA', d: 'Relevamientos, informes por unidad académica, grilla de calidad y sistema semestral de evaluación de aulas.', an: 'Es el área más avanzada: relevamiento, sistematización e informes ya están hechos. Falta la aplicación de la grilla y el circuito de devolución.' },
+      { id: 'B', n: 'Formación docente', c: '#E91E63', d: 'Diagnóstico de competencias digitales y plan anual de capacitación.', an: 'El plan está elaborado y los materiales en proceso. Las capacitaciones y la certificación de 30 docentes todavía no se iniciaron.' },
+      { id: 'C', n: 'Recursos, guías y aula de calidad', c: '#00ACC1', d: 'Recursero, guías institucionales, complemento virtual de calidad y guía de docencia híbrida.', an: 'Hay tutoriales y temas identificados, pero 10 de las 14 tareas no tienen estado cargado: conviene definir plazos y responsables.' },
+      { id: 'D', n: 'Encuestas y evaluación del SIED', c: '#FFB300', d: 'Encuesta de satisfacción del SEAD y rediseño de los mecanismos de evaluación del SIED.', an: 'La encuesta está elaborada y en aplicación. El rediseño de indicadores (cinco instrumentos) aún no tiene estado.' },
+      { id: 'E', n: 'Procedimientos y trabajo con lo curricular', c: '#43A047', d: 'Actualización de PRO y FOR, participación en SACAU y SIAC y guía de integración curricular.', an: 'Seis de las once tareas están en proceso y el anexo de EaD ya está rediseñado. Falta difundir con las comisiones curriculares.' }
+    ],
+    tareas: [
+      ['B','E','Diseño del instrumento de diagnóstico de competencias','Estefanía y Ariel'],['B','S','Comunicación del proceso a los decanatos','Fabio'],['B','S','Aplicación del instrumento','Estefanía y decanatos'],['B','S','Evaluación de resultados desde SEAD','Fabio y Estefanía'],
+      ['B','F','Elaboración del plan de capacitación','Estefanía y AEU'],['B','E','Diseño de materiales y entornos','Estefanía'],['B','N','Desarrollo de capacitaciones','Estefanía'],['B','N','Evaluación de resultados y certificación','Estefanía y Fabio'],
+      ['C','E','Espacio del recursero dentro de la plataforma','Fabio y Ariel'],['C','E','Elaboración de recursos en distintos formatos','Ariel y Estefanía'],['C','S','Edición visual y carga de cada recurso','Ariel y Estefanía'],['C','S','Comunicación a docentes del espacio disponible','Estefanía y Fabio'],
+      ['C','E','Identificación de temas que demandan los docentes','Estefanía'],['C','S','Redacción y diseño de guías','Estefanía'],['C','S','Publicación de guías en recursero, DOR y web','Fabio y Estefanía'],
+      ['A','F','Creación del instrumento de la grilla de calidad','Estefanía'],['A','E','Vinculación con la cesión de derechos','Fabio, DAC y VAC'],['A','N','Aplicación de la grilla de calidad','Estefanía'],
+      ['C','E','Bloques mínimos obligatorios del aula virtual','Estefanía y Ariel'],['C','S','Guía del complemento virtual de calidad','Estefanía'],['C','S','Capacitación para actualizar complementos virtuales','Estefanía'],['C','S','Plantillas de Canva, PPT y Word para nuevos materiales','Estefanía y Ariel'],
+      ['C','S','Análisis de normativa y experiencias híbridas','Estefanía y AEU'],['C','S','Guía de buenas prácticas híbridas con diseño visual','Estefanía'],['C','S','Taller de formación en propuestas bimodales','Estefanía'],
+      ['A','F','Criterios de evaluación de entornos virtuales','Estefanía'],['A','S','Circuito de feedback con FOR 395','Estefanía y Fabio'],['A','S','Formulario de autoevaluación docente','Estefanía, Ariel y Fabio'],['A','E','Tablero de comando con los resultados','Estefanía'],
+      ['A','S','Identificación de aulas bajo el estándar mínimo','Estefanía'],['A','S','Micro-encuentros de asesoramiento personalizado','Estefanía'],['A','S','Uso de los datos para definir la oferta de talleres','Estefanía'],
+      ['A','F','Instrumento adaptado del FOR 395','Estefanía'],['A','F','Aplicación en todas las carreras a distancia','Estefanía'],['A','F','Sistematización de los datos relevados','Estefanía'],
+      ['A','F','Observación de los datos obtenidos','Estefanía y Fabio'],['A','F','Informes por unidad académica y general','Estefanía'],['A','N','Comunicación de resultados con decanatos (la hoja no refleja lo ya entregado)','Fabio y Estefanía'],
+      ['D','F','Instrumento de la encuesta de satisfacción','Milagros, Estefanía y Fabio'],['D','E','Aplicación de la encuesta','Todos'],['D','E','Evaluación de los datos de la encuesta','Todos'],['D','S','Plan de acción a partir de la encuesta','Todos'],
+      ['D','S','Criterios de calidad del SIED','Fabio, Milagros y Estefanía'],['D','S','Instrumentos para docentes, tutores, estudiantes, administrativos y gestión','Fabio, Milagros y Estefanía'],['D','S','Aplicación de los instrumentos','Fabio y decanatos'],['D','S','Sistematización de datos','Fabio, Milagros y Estefanía'],['D','S','Planes de mejora anuales','Fabio, Milagros y Estefanía'],
+      ['E','E','Mapeo de instrumentos FOR, PRO y DOR','Fabio, Milagros y Estefanía'],['E','E','Elaboración y revisión de los documentos','Fabio, Milagros y Estefanía'],['E','S','Difusión de documentos y guías de uso','Fabio y DAC'],['E','S','Implementación en las áreas correspondientes','Fabio, Milagros y Estefanía'],
+      ['E','E','PRO de presentación de carreras a distancia','Estefanía y DAC'],['E','F','Anexo de EaD para presentar ofertas a distancia','Estefanía y DAC'],['E','E','Participación en procesos de transformación curricular','Estefanía y Fabio'],['E','N','Informes de revisión de modalidad en cambios curriculares','Estefanía'],
+      ['E','E','Criterios curriculares para la virtualidad','Estefanía'],['E','E','Guía de integración de la virtualidad','Estefanía'],['E','N','Difusión con comisiones curriculares','Estefanía y Fabio']
+    ],
+    sied: { items: 45, estados: [['Finalizado', 33, '#00A86B'], ['En curso', 7, '#FFB300'], ['Pendiente', 3, '#E91E63'], ['Sin estado', 2, '#B0A6B5']],
+      secciones: [['Fundamentación y marco normativo', 3, 3, 1, 0], ['Estructura de gestión y programación', 6, 0, 0, 0], ['Gestión académica de la opción a distancia', 8, 0, 1, 0], ['Cuerpo académico', 3, 0, 0, 0], ['Alumnos', 2, 0, 0, 0], ['Tecnologías previstas', 1, 3, 0, 0], ['Observaciones del informe de 2019', 5, 0, 0, 1], ['Cumplimiento de planes de mejora previos', 5, 1, 1, 1]] },
+    hechos: ['Plan anual de capacitación elaborado', 'Instrumento de la grilla de calidad', 'Criterios del sistema de evaluación de aulas', 'Instrumento de relevamiento adaptado del FOR 0395', 'Aplicación en unas 100 aulas', 'Sistematización de datos', 'Informes por unidad académica (5) e informe general', 'Instrumento de encuesta de satisfacción del SEAD', 'Anexo de EaD rediseñado'],
+    pendientes: ['Desarrollar las capacitaciones y certificar a 30 docentes', 'Aplicar la grilla de calidad en 15 materias', 'Informes de revisión de modalidad en cambios curriculares', 'Difundir la guía de integración curricular y trabajar con las comisiones', 'Actualizar la hoja con la entrega de informes a los decanatos']
+  },
+
+  /* ------------ prioridades y articulación con el plan de trabajo ------------ */
+  prio: [
+    { n: 1, t: 'Convertir los informes en acuerdos: ficha de una página y reunión breve con cada decanato', imp: 5, esf: 1, linea: 'L1', eje: 'Eje 1 y 2', plazo: 'Noviembre 2026', q: 'Los informes técnicos ya se entregaron a cinco decanatos y a Veterinaria e Ingeniería y Enología se les puede acercar el reporte del campus 2026. Con un resumen de una página y un encuentro corto por cada una de las siete facultades, los hallazgos se transforman en compromisos. También conviene actualizar la hoja de seguimiento, que aún muestra la tarea sin iniciar.' },
+    { n: 2, t: 'Rediseñar la evaluación: de cuestionarios a evaluación auténtica', imp: 5, esf: 3, linea: 'L2, L3 y L6', eje: 'Eje 3 y 6', plazo: 'Nov 2026 a mar 2027', q: 'Es el punto crítico común a las facultades relevadas en 2025 (en Veterinaria e Ingeniería y Enología aparece como mezcla de escalas de calificación) y el de mayor riesgo con la IA. Requiere guía, rúbricas y una capacitación específica.' },
+    { n: 3, t: 'Completar la plantilla y la Ruta de Aprendizaje con un tablero de aulas', imp: 5, esf: 2, linea: 'L2', eje: 'Eje 2 y 5', plazo: 'Nov 2026 a feb 2027', q: 'El 56 % de las aulas no usa la plantilla. Hay un seguimiento por módulo que se puede extender a todas las carreras a distancia.' },
+    { n: 4, t: 'Activar el foro de avisos como rutina semanal', imp: 4, esf: 1, linea: 'L5', eje: 'Eje 3', plazo: 'Desde marzo 2027', q: 'Es un cambio visible y casi sin costo: pauta de uso, recordatorio mensual y control con el tablero.' },
+    { n: 5, t: 'Tablero de indicadores del SIED con datos propios', imp: 5, esf: 3, linea: 'L1 y L5', eje: 'Eje 1 y 8', plazo: 'Nov 2026 a feb 2027', q: 'Resuelve la crítica de la UNCuyo. Se puede construir con el relevamiento 2025 y el lector de aulas del campus.' },
+    { n: 6, t: 'Definir la figura del tutor y del referente de cátedra', imp: 4, esf: 3, linea: 'L5', eje: 'Eje 2 y 7', plazo: 'Diciembre 2026', q: 'El reglamento discute el rol, el PRO 0440 ya nombra al Tutor Virtual y al Tutor de orientación y solo 2 de 11 carreras tienen tutor nombrado. Es la base del seguimiento diferenciado.' },
+    { n: 7, t: 'Unificar la encuesta de competencias digitales docentes', imp: 4, esf: 2, linea: 'L1, L3 y L4', eje: 'Eje 1 y 3', plazo: 'Noviembre 2026', q: 'El plan de mejora I la tiene en proceso con plazo 2027. Una sola encuesta cubre ese plan y la línea 1 del plan de trabajo.' },
+    { n: 8, t: 'Cerrar la propiedad intelectual: validar la grilla y la norma de cesión', imp: 4, esf: 2, linea: 'L2 y L6', eje: 'Eje 2 y 4', plazo: 'Diciembre 2026', q: '34 aulas con libros completos sin licencia y una grilla sin validar.' },
+    { n: 9, t: 'Hacer certificable el trayecto de capacitación', imp: 4, esf: 4, linea: 'L3 y L4', eje: 'Eje 3', plazo: 'Dic 2026 a mar 2027', q: 'El plan 2026 tiene seis propuestas, pero no registra asistencia final ni certificación.' },
+    { n: 10, t: 'Instalar integridad académica y validación de identidad', imp: 4, esf: 4, linea: 'L6', eje: 'Eje 6', plazo: 'Nov 2026 a feb 2027', q: 'No figura en los planes de mejora: es un vacío que el plan de trabajo cubre.' },
+    { n: 11, t: 'Sumar criterios de competencias digitales a la selección docente', imp: 4, esf: 2, linea: 'L4', eje: 'Eje 4', plazo: 'Dic 2026 a ene 2027', q: 'El SEAD y la AEU ya actualizaron FOR 0024 y 0028; falta incorporar competencias digitales, Moodle y mediación como criterios explícitos.' },
+    { n: 12, t: 'Ampliar la base de responsables y suplencias en las tareas individuales', imp: 4, esf: 2, linea: 'Gobernanza', eje: 'Eje 2', plazo: 'Noviembre 2026', q: '22 tareas dependen de una sola persona. El Referente de cátedra y los co-responsables dan continuidad al trabajo.' },
+    { n: 13, t: 'Ordenar el archivo normativo y los informes', imp: 3, esf: 1, linea: 'L1', eje: 'Eje 2', plazo: 'Noviembre 2026', q: 'Texto de las resoluciones escaneadas, un índice de documentos e informes sin restos de otras carreras.' }
+  ],
+  ejes: [
+    { n: 1, t: 'Diagnóstico y relevamiento inicial', lineas: 'L1', m: [0, 2.5], c: '#8E24AA', hay: 'Relevamiento 2025 de 97 aulas, 5 informes técnicos por facultad entregados y reporte del campus 2026 para las 7 facultades, 45 ítems del informe del SIED con avance.', aporta: 'Entrevistas por facultad, consulta a docentes y estudiantes (una encuesta unificada) y mapa de procesos del SEAD.' },
+    { n: 2, t: 'Ordenamiento y revisión de procesos', lineas: 'L1, L2 y L5', m: [1, 4], c: '#00ACC1', hay: 'FOR 0395 y 0035, Ruta de Aprendizaje, organigrama aprobado y PRO/FOR en revisión (plan de mejora II).', aporta: 'Revisión de duplicaciones, matriz de priorización y mapa de circuitos entre SEAD y facultades.' },
+    { n: 3, t: 'Capacidades digitales docentes (7 cursos)', lineas: 'L3 y L4', m: [1.5, 6.5], c: '#E91E63', hay: 'Plan de capacitación 2026 con seis propuestas, Edubit, DistancIA, Moodle autogestionado: 227 docentes.', aporta: 'Itinerario de siete cursos integrado a lo existente y camino de certificación.' },
+    { n: 4, t: 'Selección de docentes a distancia', lineas: 'L4', m: [3, 5], c: '#FFB300', hay: 'FOR 0024 y 0028 y PRO 0321 actualizados con la AEU (nov 2025); grilla de aula del concursante (FOR 0035).', aporta: 'Criterios de competencias digitales, Moodle y mediación, y proyecto de resolución.' },
+    { n: 5, t: 'Optimización de Moodle', lineas: 'L2', m: [1.5, 4], c: '#43A047', hay: 'Moodle 4.5.4, rediseño de la plataforma en curso, componentes HTML responsivos y tutoriales.', aporta: 'Diagnóstico de uso con el lector de aulas, mapa por facultad y propuesta de optimización.' },
+    { n: 6, t: 'Proctoring e integridad académica', lineas: 'L6', m: [1.5, 5.5], c: '#C0453F', hay: 'Res. 91/2020, 787/21 y 676/2021; exámenes con Meet y DNI.', aporta: 'Relevamiento de proveedores, piloto en entorno de prueba y cuadro comparativo.' },
+    { n: 7, t: 'Procesos administrativos', lineas: 'L1 y L5', m: [4, 6], c: '#5C6BC0', hay: 'Procedimientos de baja estudiantil y de registro de unidad curricular digital.', aporta: 'Mapa de circuitos y propuesta de simplificación y trazabilidad.' },
+    { n: 8, t: 'Plan Operativo de Mejoras 2027', lineas: 'L1 a L7', m: [5, 7], c: '#72076F', hay: 'Planes de mejora I y II con cronograma hasta 2027.', aporta: 'Plan único, cronograma 2027 y plan de continuidad.' }
+  ],
+  meses: ['Sep (desde el 15)', 'Oct', 'Nov', 'Dic', 'Ene', 'Feb', 'Mar'],
+  hitos: [
+    { m: 0.2, t: 'Lanzamiento del plan y Comité de Gestión' },
+    { m: 1.8, t: 'Informe de diagnóstico inicial' },
+    { m: 2.5, t: 'Primera cohorte formativa y RFP' },
+    { m: 3.6, t: 'Migración piloto y resolución' },
+    { m: 5.5, t: 'Segunda cohorte y dispositivo de seguimiento' },
+    { m: 6.6, t: 'Congreso y Simposio; evaluación final' }
+  ],
+  riesgos: [
+    ['Resistencia docente a la certificación', 'Alta', 'Los datos muestran 71 % de uso básico: conviene comunicar temprano y ofrecer formación gratuita.'],
+    ['Superposición con el receso de verano', 'Alta', 'Concentrar el dictado en octubre a diciembre y febrero a marzo.'],
+    ['Superposición con planes de mejora vigentes', 'Media', 'Alinear la encuesta, la grilla y el recursero para no duplicar trabajo.'],
+    ['Datos biométricos y Ley 25.326', 'Media', 'Consulta temprana al Comité de Ciberseguridad y a Asesoría Legal.']
+  ],
+  proximos: [
+    'Acordar con la Dirección y la Coordinación pedagógica qué tareas de los planes de mejora pasan a cada línea del plan de trabajo, para no duplicar.',
+    'Preparar para cada decanato una ficha de una página con los datos de su facultad y una propuesta de plan de acción.',
+    'Unificar en una sola encuesta docente el relevamiento de competencias digitales del plan de mejora I y el autodiagnóstico de la línea 1.',
+    'Pedir una versión con texto de las resoluciones 0008-26 y 0009-26 y los resultados de las encuestas de satisfacción.',
+    'Elegir las aulas modelo para la guía de diseño y la visita de pares (por ejemplo, Ética transversal y el Profesorado para Profesionales).'
+  ]
+};
+
+</script>
+<script>
+/* Biblioteca de ilustraciones del campus UMaza (SVG en línea).
+   Colores institucionales: violeta #72076F y #92278F, rosa #E85D9E, amarillo #FFC107, turquesa #17A2B8, verde #2FB380.
+   Las funciones devuelven texto SVG; se pueden reemplazar por capturas reales (ver LEEME). */
+window.ILL = (function () {
+  var V = '#72076F', M = '#92278F', P = '#E85D9E', Y = '#FFC107', T = '#17A2B8', G = '#2FB380', D = '#2A0F29', L = '#F7EAF6';
+  function wrap(vb, inner, label) { return '<svg viewBox="' + vb + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' + (label || 'Ilustración') + '">' + inner + '</svg>'; }
+  var icons = {
+    laptop: function (c) { return '<path d="M14 40 L14 18 Q14 14 18 14 L46 14 Q50 14 50 18 L50 40" fill="#fff" stroke="' + c + '" stroke-width="3" stroke-linejoin="round"/><path d="M8 44 L56 44 L52 50 L12 50 Z" fill="' + c + '" opacity=".9"/><path d="M22 24 L42 24 M22 31 L36 31" stroke="' + c + '" stroke-width="3" stroke-linecap="round"/>'; },
+    book: function (c) { return '<path d="M10 14 Q22 10 32 16 Q42 10 54 14 L54 48 Q42 44 32 50 Q22 44 10 48 Z" fill="#fff" stroke="' + c + '" stroke-width="3" stroke-linejoin="round"/><path d="M32 16 L32 50" stroke="' + c + '" stroke-width="3"/><path d="M16 22 L26 24 M16 30 L26 32 M38 24 L48 22 M38 32 L48 30" stroke="' + c + '" stroke-width="2.4" stroke-linecap="round"/>'; },
+    cap: function (c) { return '<path d="M32 12 L58 24 L32 36 L6 24 Z" fill="' + c + '" stroke="' + c + '" stroke-width="3" stroke-linejoin="round"/><path d="M16 31 L16 42 Q32 52 48 42 L48 31" fill="#fff" stroke="' + c + '" stroke-width="3" stroke-linejoin="round"/><path d="M56 26 L56 42" stroke="' + Y + '" stroke-width="3.4" stroke-linecap="round"/><circle cx="56" cy="45" r="3.4" fill="' + Y + '"/>'; },
+    globe: function (c) { return '<circle cx="32" cy="32" r="22" fill="#fff" stroke="' + c + '" stroke-width="3"/><ellipse cx="32" cy="32" rx="9" ry="22" fill="none" stroke="' + c + '" stroke-width="2.6"/><path d="M10 32 L54 32 M14 20 Q32 26 50 20 M14 44 Q32 38 50 44" fill="none" stroke="' + c + '" stroke-width="2.6"/>'; },
+    chat: function (c) { return '<path d="M10 14 L46 14 Q52 14 52 20 L52 34 Q52 40 46 40 L28 40 L18 50 L18 40 L14 40 Q10 40 10 34 Z" fill="#fff" stroke="' + c + '" stroke-width="3" stroke-linejoin="round"/><circle cx="22" cy="27" r="2.6" fill="' + c + '"/><circle cx="31" cy="27" r="2.6" fill="' + c + '"/><circle cx="40" cy="27" r="2.6" fill="' + c + '"/><path d="M40 46 L52 46 L58 54 L58 46" fill="' + Y + '" stroke="' + c + '" stroke-width="2.4" stroke-linejoin="round"/>'; },
+    net: function (c) { return '<path d="M32 16 L14 44 M32 16 L50 44 M14 44 L50 44" stroke="' + c + '" stroke-width="3" fill="none"/><circle cx="32" cy="16" r="8" fill="' + Y + '" stroke="' + c + '" stroke-width="3"/><circle cx="14" cy="44" r="8" fill="#fff" stroke="' + c + '" stroke-width="3"/><circle cx="50" cy="44" r="8" fill="' + P + '" stroke="' + c + '" stroke-width="3"/>'; },
+    school: function (c) { return '<path d="M8 28 L32 10 L56 28 Z" fill="' + c + '" stroke="' + c + '" stroke-width="3" stroke-linejoin="round"/><rect x="12" y="28" width="40" height="24" fill="#fff" stroke="' + c + '" stroke-width="3"/><rect x="27" y="36" width="10" height="16" fill="' + Y + '" stroke="' + c + '" stroke-width="2.4"/><circle cx="32" cy="22" r="3" fill="#fff"/><path d="M18 34 L22 34 M42 34 L46 34" stroke="' + c + '" stroke-width="3" stroke-linecap="round"/>'; },
+    calendar: function (c) { return '<rect x="10" y="14" width="44" height="40" rx="5" fill="#fff" stroke="' + c + '" stroke-width="3"/><path d="M10 26 L54 26" stroke="' + c + '" stroke-width="3"/><path d="M20 8 L20 18 M44 8 L44 18" stroke="' + c + '" stroke-width="3.4" stroke-linecap="round"/><circle cx="22" cy="36" r="3" fill="' + c + '"/><circle cx="32" cy="36" r="3" fill="' + Y + '"/><circle cx="42" cy="36" r="3" fill="' + c + '"/><circle cx="22" cy="46" r="3" fill="' + c + '"/><circle cx="32" cy="46" r="3" fill="' + c + '"/>'; },
+    folder: function (c) { return '<path d="M8 18 Q8 14 12 14 L26 14 L32 20 L52 20 Q56 20 56 24 L56 48 Q56 52 52 52 L12 52 Q8 52 8 48 Z" fill="' + Y + '" stroke="' + c + '" stroke-width="3" stroke-linejoin="round"/><path d="M8 28 L56 28" stroke="' + c + '" stroke-width="2.6"/>'; },
+    door: function (c) { return '<path d="M16 54 L16 12 Q16 8 20 8 L44 8 Q48 8 48 12 L48 54 Z" fill="#fff" stroke="' + c + '" stroke-width="3" stroke-linejoin="round"/><circle cx="40" cy="32" r="3" fill="' + c + '"/><path d="M6 54 L58 54" stroke="' + c + '" stroke-width="3.4" stroke-linecap="round"/><path d="M24 22 L40 22 M24 30 L34 30" stroke="' + Y + '" stroke-width="3" stroke-linecap="round"/>'; },
+    chart: function (c) { return '<path d="M10 52 L54 52" stroke="' + c + '" stroke-width="3.4" stroke-linecap="round"/><rect x="14" y="32" width="9" height="20" fill="' + T + '" stroke="' + c + '" stroke-width="2.4"/><rect x="28" y="20" width="9" height="32" fill="' + Y + '" stroke="' + c + '" stroke-width="2.4"/><rect x="42" y="12" width="9" height="40" fill="' + P + '" stroke="' + c + '" stroke-width="2.4"/>'; },
+    users: function (c) { return '<circle cx="24" cy="22" r="9" fill="#fff" stroke="' + c + '" stroke-width="3"/><path d="M8 52 Q8 36 24 36 Q40 36 40 52 Z" fill="#fff" stroke="' + c + '" stroke-width="3" stroke-linejoin="round"/><circle cx="44" cy="25" r="7" fill="' + Y + '" stroke="' + c + '" stroke-width="3"/><path d="M38 52 Q38 40 50 40 Q60 40 60 52 Z" fill="' + P + '" stroke="' + c + '" stroke-width="3" stroke-linejoin="round"/>'; },
+    flask: function (c) { return '<path d="M24 10 L40 10 M27 10 L27 26 L12 50 Q10 54 15 54 L49 54 Q54 54 52 50 L37 26 L37 10" fill="#fff" stroke="' + c + '" stroke-width="3" stroke-linejoin="round"/><path d="M18 42 L46 42 L51 50 Q53 54 49 54 L15 54 Q11 54 13 50 Z" fill="' + G + '"/><circle cx="30" cy="34" r="2.4" fill="' + c + '"/><circle cx="36" cy="30" r="1.8" fill="' + c + '"/>'; },
+    gear: function (c) { return '<circle cx="32" cy="32" r="9" fill="#fff" stroke="' + c + '" stroke-width="3"/><path d="M32 8 L36 14 L42 12 L44 19 L51 20 L50 27 L56 31 L51 36 L53 43 L46 44 L43 50 L36 48 L32 54 L28 48 L21 50 L18 44 L11 43 L13 36 L8 31 L14 27 L13 20 L20 19 L22 12 L28 14 Z" fill="' + Y + '" stroke="' + c + '" stroke-width="2.6" stroke-linejoin="round" opacity=".95"/><circle cx="32" cy="32" r="8" fill="#fff" stroke="' + c + '" stroke-width="3"/>'; },
+    crown: function (c) { return '<path d="M8 46 L12 20 L24 32 L32 14 L40 32 L52 20 L56 46 Z" fill="' + Y + '" stroke="' + c + '" stroke-width="3" stroke-linejoin="round"/><path d="M8 52 L56 52" stroke="' + c + '" stroke-width="3.4" stroke-linecap="round"/><circle cx="12" cy="18" r="3" fill="' + P + '"/><circle cx="32" cy="12" r="3" fill="' + P + '"/><circle cx="52" cy="18" r="3" fill="' + P + '"/>'; },
+    shield: function (c) { return '<path d="M32 8 L54 16 L54 32 Q54 48 32 58 Q10 48 10 32 L10 16 Z" fill="#fff" stroke="' + c + '" stroke-width="3" stroke-linejoin="round"/><path d="M22 32 L29 39 L43 24" fill="none" stroke="' + G + '" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/>'; }
+  };
+  function icon(name, c, size) { var f = icons[name] || icons.book; return '<svg viewBox="0 0 64 64" width="' + (size || 64) + '" height="' + (size || 64) + '" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' + f(c || V) + '</svg>'; }
+  // Ventana de navegador con un aula virtual estilizada (parecida a una captura)
+  function aula(titulo, color, sub) {
+    color = color || M; titulo = (titulo || 'Aula virtual').slice(0, 34); sub = sub || 'Campus Virtual UMaza';
+    var rows = '';
+    for (var i = 0; i < 4; i++) { var y = 152 + i * 44; rows += '<rect x="30" y="' + y + '" width="300" height="34" rx="8" fill="#fff" stroke="#E4D3E3"/><circle cx="50" cy="' + (y + 17) + '" r="9" fill="' + [T, Y, P, G][i] + '"/><path d="M45 ' + (y + 17) + ' l4 4 l7 -8" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round"/><rect x="68" y="' + (y + 9) + '" width="' + (120 + i * 26) + '" height="7" rx="3.5" fill="#CDB5CC"/><rect x="68" y="' + (y + 21) + '" width="' + (84 + i * 14) + '" height="6" rx="3" fill="#E4D3E3"/>'; }
+    return wrap('0 0 360 340',
+      '<rect x="6" y="10" width="348" height="322" rx="16" fill="#fff" stroke="' + D + '" stroke-width="3"/>' +
+      '<path d="M6 26 Q6 10 22 10 L338 10 Q354 10 354 26 L354 44 L6 44 Z" fill="' + D + '"/><circle cx="26" cy="27" r="4.5" fill="' + P + '"/><circle cx="42" cy="27" r="4.5" fill="' + Y + '"/><circle cx="58" cy="27" r="4.5" fill="' + G + '"/><rect x="82" y="19" width="200" height="16" rx="8" fill="#4B2A49"/>' +
+      '<rect x="20" y="54" width="320" height="76" rx="12" fill="' + color + '"/><path d="M230 54 L340 54 L340 130 L200 130 Z" fill="#fff" opacity=".13"/><text x="36" y="86" font-family="Segoe UI,Arial" font-size="18" font-weight="700" fill="#fff">' + titulo.replace(/&/g, '&amp;') + '</text><text x="36" y="108" font-family="Segoe UI,Arial" font-size="12.5" fill="#fff" opacity=".9">' + sub.replace(/&/g, '&amp;') + '</text><rect x="36" y="116" width="150" height="6" rx="3" fill="#fff" opacity=".4"/><rect x="36" y="116" width="96" height="6" rx="3" fill="' + Y + '"/>' + rows, 'Captura ilustrada de un aula virtual');
+  }
+  // Escena principal: aula + elementos flotantes
+  function hero() {
+    return wrap('0 0 560 460',
+      '<circle cx="300" cy="240" r="190" fill="' + Y + '" opacity=".95"/><circle cx="300" cy="240" r="150" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="2 12" stroke-linecap="round"/>' +
+      '<path d="M0 360 Q140 300 260 350 T560 320 L560 460 L0 460 Z" fill="' + P + '" opacity=".9"/>' +
+      '<g transform="translate(140 70) rotate(-4 180 170)">' + aula('Programa de Ingreso 2027', M, 'Campus Virtual UMaza').replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, '') + '</g>' +
+      '<g transform="translate(40 40) rotate(-12)"><rect width="104" height="70" rx="14" fill="#fff" stroke="' + D + '" stroke-width="3"/><rect x="14" y="40" width="14" height="18" fill="' + T + '"/><rect x="36" y="26" width="14" height="32" fill="' + Y + '"/><rect x="58" y="14" width="14" height="44" fill="' + P + '"/><rect x="80" y="30" width="12" height="28" fill="' + G + '"/></g>' +
+      '<g transform="translate(436 70) rotate(10)">' + icon('cap', V, 96) + '</g>' +
+      '<g transform="translate(428 300) rotate(-6)"><path d="M0 0 L100 0 Q112 0 112 12 L112 44 Q112 56 100 56 L52 56 L34 74 L34 56 L12 56 Q0 56 0 44 L0 12 Q0 0 12 0 Z" fill="#fff" stroke="' + D + '" stroke-width="3" stroke-linejoin="round"/><circle cx="32" cy="28" r="5" fill="' + M + '"/><circle cx="56" cy="28" r="5" fill="' + P + '"/><circle cx="80" cy="28" r="5" fill="' + T + '"/></g>' +
+      '<g transform="translate(34 330)">' + icon('book', V, 92) + '</g>' +
+      '<path d="M470 40 l6 14 l14 6 l-14 6 l-6 14 l-6 -14 l-14 -6 l14 -6 Z" fill="#fff"/><path d="M60 200 l4 9 l9 4 l-9 4 l-4 9 l-4 -9 l-9 -4 l9 -4 Z" fill="' + V + '"/>', 'Ilustración de un aula virtual rodeada de gráficos, libros y mensajes');
+  }
+  // Pila de cajas de archivo (aulas ocultas)
+  function archivo() {
+    return wrap('0 0 360 300',
+      '<ellipse cx="180" cy="270" rx="150" ry="14" fill="#000" opacity=".12"/>' +
+      '<g stroke="' + D + '" stroke-width="3" stroke-linejoin="round"><path d="M40 150 L180 150 L180 262 L40 262 Z" fill="' + P + '"/><path d="M180 150 L320 150 L320 262 L180 262 Z" fill="' + M + '"/><path d="M30 134 L190 134 L190 156 L30 156 Z" fill="' + Y + '"/><path d="M170 134 L330 134 L330 156 L170 156 Z" fill="' + T + '"/><path d="M70 60 L180 60 L180 134 L70 134 Z" fill="' + G + '"/><path d="M180 60 L290 60 L290 134 L180 134 Z" fill="' + V + '"/></g>' +
+      '<g fill="#fff"><rect x="86" y="190" width="70" height="12" rx="6"/><rect x="204" y="190" width="70" height="12" rx="6"/><rect x="100" y="86" width="56" height="10" rx="5"/><rect x="204" y="86" width="56" height="10" rx="5"/></g>' +
+      '<g transform="translate(250 8) rotate(12)">' + icon('calendar', D, 70) + '</g>', 'Cajas de archivo con los ciclos cerrados');
+  }
+  // Nube de aulas / red
+  function red() {
+    return wrap('0 0 360 300',
+      '<circle cx="180" cy="150" r="120" fill="' + Y + '" opacity=".9"/><path d="M110 170 Q90 170 90 150 Q90 128 112 128 Q116 100 148 100 Q168 80 196 96 Q236 90 244 128 Q270 130 270 154 Q270 174 246 174 Z" fill="#fff" stroke="' + D + '" stroke-width="3" stroke-linejoin="round"/>' +
+      '<g stroke="' + D + '" stroke-width="3"><circle cx="150" cy="140" r="10" fill="' + M + '"/><circle cx="188" cy="124" r="10" fill="' + T + '"/><circle cx="226" cy="146" r="10" fill="' + P + '"/><path d="M158 136 L180 128 M196 128 L220 142 M154 148 L218 152" fill="none"/></g>' +
+      '<g transform="translate(40 180)">' + icon('laptop', V, 80) + '</g><g transform="translate(250 190)">' + icon('users', V, 80) + '</g>', 'Nube conectada con computadoras y personas');
+  }
+  return { icon: icon, aula: aula, hero: hero, archivo: archivo, red: red, colors: { V: V, M: M, P: P, Y: Y, T: T, G: G, D: D, L: L } };
+})();
+
+</script>
+<script>
+(function(){
+var A=window.ACC, L=A.linea;
+var KC={hito:'#FFC107',norma:'#17A2B8',trabajo:'#92278F',meta:'#E85D9E'}, KN={hito:'Hitos',norma:'Normas',trabajo:'Trabajo del SEAD',meta:'Metas'};
+var esc=function(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};
+var P=[[140,130],[420,130],[700,130],[980,130],[880,360],[600,360],[320,360],[300,590],[640,590],[980,590]];
+var sel=8, filt=null, timer=null;
+var road='M 70 130 H 1040 A 115 115 0 0 1 1040 360 H 160 A 115 115 0 0 0 160 590 H 1130';
+function svg(){
+ var h='<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Camino con las estaciones de la línea de tiempo">';
+ h+='<defs><filter id="sh"><feDropShadow dx="0" dy="6" stdDeviation="6" flood-opacity=".25"/></filter></defs>';
+ /* decoración */
+ h+='<g opacity=".9"><ellipse cx="190" cy="40" rx="70" ry="22" fill="#fff"/><ellipse cx="240" cy="30" rx="50" ry="18" fill="#fff"/><ellipse cx="900" cy="250" rx="80" ry="22" fill="#fff"/><ellipse cx="960" cy="238" rx="50" ry="16" fill="#fff"/><ellipse cx="400" cy="480" rx="70" ry="20" fill="#fff"/></g>';
+ [[70,220],[1120,250],[60,470],[1130,470],[760,660],[130,660]].forEach(function(t,i){var c=['#2FB380','#17A2B8','#FFC107'][i%3];h+='<g transform="translate('+t[0]+' '+t[1]+')"><rect x="-4" y="14" width="8" height="22" fill="#8D6E63"/><circle cx="0" cy="6" r="22" fill="'+c+'" opacity=".85"/></g>';});
+ h+='<path d="'+road+'" fill="none" stroke="#fff" stroke-width="64" stroke-linecap="round" opacity=".9" filter="url(#sh)"/><path d="'+road+'" fill="none" stroke="#B9A9BC" stroke-width="54" stroke-linecap="round"/><path id="rd" d="'+road+'" fill="none" stroke="#fff" stroke-width="4" stroke-dasharray="3 22" stroke-linecap="round"/>';
+ h+='<path id="done" d="'+road+'" fill="none" stroke="#E85D9E" stroke-width="8" stroke-linecap="round" stroke-dasharray="0 6000" opacity=".9"/>';
+ P.forEach(function(p,i){var y=L[i],c=KC[y.k];
+  var up=(i<4||i>6&&i<10)?-1:1; var ly=p[1]+(up<0?-62:78);
+  h+='<g class="pin" data-i="'+i+'" transform="translate('+p[0]+' '+p[1]+')"><circle class="halo" r="46" fill="'+c+'"/><circle r="26" fill="#fff" stroke="'+c+'" stroke-width="9" filter="url(#sh)"/><circle r="9" fill="'+c+'"/><text class="y" x="0" y="'+(ly-p[1])+'">'+y.a+'</text></g>';});
+ h+='<g id="bus"><g transform="translate(-22 -58)"><path d="M0 0 H44 V34 H0 Z" fill="#92278F" rx="6"/><path d="M0 0 H44 V34 H0 Z" fill="#92278F"/><rect x="6" y="6" width="14" height="12" fill="#fff" opacity=".9"/><rect x="24" y="6" width="14" height="12" fill="#fff" opacity=".9"/><circle cx="10" cy="36" r="6" fill="#2A0F29"/><circle cx="34" cy="36" r="6" fill="#2A0F29"/></g></g>';
+ return h+'</svg>';
+}
+function pos(i){return P[i];}
+function draw(){var map=document.getElementById('map'),tip=document.getElementById('tip');
+ var old=map.querySelector('svg');if(!old){var d=document.createElement('div');d.innerHTML=svg();map.insertBefore(d.firstChild,tip);
+  map.addEventListener('mouseover',function(e){var p=e.target.closest('.pin');if(!p)return;var y=L[+p.dataset.i],r=map.getBoundingClientRect(),b=p.getBoundingClientRect();tip.innerHTML='<b>'+y.a+' · '+esc(y.t)+'</b>'+esc(y.d.length>170?y.d.slice(0,167)+'…':y.d);tip.style.left=Math.min(r.width-310,Math.max(0,b.left-r.left-130))+'px';tip.style.top=(b.top-r.top-tip.offsetHeight-12)+'px';if(b.top-r.top<tip.offsetHeight+20)tip.style.top=(b.bottom-r.top+10)+'px';tip.style.opacity=1;});
+  map.addEventListener('mouseout',function(e){if(e.target.closest('.pin'))tip.style.opacity=0;});
+  map.addEventListener('click',function(e){var p=e.target.closest('.pin');if(p){stop();sel=+p.dataset.i;upd();}});}
+ upd();}
+function upd(){var svgEl=document.querySelector('#map svg');if(!svgEl)return;
+ [].forEach.call(svgEl.querySelectorAll('.pin'),function(p){var i=+p.dataset.i;p.classList.toggle('on',i===sel);p.classList.toggle('dim',!!filt&&L[i].k!==filt);});
+ var bus=document.getElementById('bus'),pt=P[sel];bus.setAttribute('transform','translate('+(pt[0]+62)+' '+(pt[1]-20)+')');
+ var rd=document.getElementById('rd'),tot=rd.getTotalLength();
+ /* tramo recorrido: aproximación por posición de la estación */
+ var best=0,bd=1e9;for(var s=0;s<=tot;s+=6){var q=rd.getPointAtLength(s),dd=Math.hypot(q.x-pt[0],q.y-pt[1]);if(dd<bd){bd=dd;best=s;}}
+ document.getElementById('done').setAttribute('stroke-dasharray',best+' 6000');
+ var y=L[sel],c=KC[y.k];
+ document.getElementById('panel').innerHTML='<div class="card" style="--c:'+c+'"><div class="yr">'+y.a+'</div><div><span class="tag'+(y.k==='hito'?' lt':'')+'">'+KN[y.k]+'</span><h2>'+esc(y.t)+'</h2><p>'+esc(y.d)+'</p><div class="nav"><button id="pv">&larr; Anterior</button><button id="nx">Siguiente &rarr;</button></div></div></div>';
+ document.getElementById('pv').onclick=function(){stop();sel=Math.max(0,sel-1);upd();};document.getElementById('nx').onclick=function(){stop();sel=Math.min(L.length-1,sel+1);upd();};}
+function stop(){if(timer){clearInterval(timer);timer=null;var b=document.getElementById('pl');if(b)b.textContent='Reproducir recorrido';}}
+var ctrl=document.getElementById('ctrl');
+ctrl.innerHTML='<button class="chip on" data-k="" style="--c:#72076F">Todo</button>'+Object.keys(KN).map(function(k){return '<button class="chip'+(k==='hito'?' lt':'')+'" data-k="'+k+'" style="--c:'+KC[k]+'">'+KN[k]+'</button>';}).join('')+'<button class="play" id="pl">Reproducir recorrido</button>';
+ctrl.onclick=function(e){var b=e.target.closest('.chip');if(b){filt=b.dataset.k||null;[].forEach.call(ctrl.querySelectorAll('.chip'),function(c){c.classList.toggle('on',(c.dataset.k||null)===filt);});upd();}};
+document.getElementById('pl').onclick=function(){if(timer){stop();return;}this.textContent='Detener';sel=0;upd();timer=setInterval(function(){if(sel>=L.length-1){stop();return;}sel++;upd();},2600);};
+draw();
+})();
+</script>
+</body>
+</html>
